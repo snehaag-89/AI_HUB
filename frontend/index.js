@@ -1,0 +1,1 @@
+import App from './App'; // Ye sahi hai, extension likhne ki zaroorat nahi hoti
