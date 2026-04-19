@@ -15,8 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // .env file ka exact path set kar rahe hain
-dotenv.config({ path: path.join(__dirname, ".env") });
-
+dotenv.config();
 const app = express();
 
 // Middleware
