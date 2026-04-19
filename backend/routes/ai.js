@@ -1,103 +1,63 @@
 import express from "express";
-import authMiddleware from "../middleware/auth.js";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 
 const router = express.Router();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Notes Summarizer
-router.post("/summarize", authMiddleware, async (req, res) => {
-  const { text } = req.body;
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [{ role: "user", content: `Summarize this text: ${text}` }],
+const groqChat = async (prompt) => {
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama-3.3-70b-versatile",
     });
-    res.json({ summary: response.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "AI summarization failed" });
-  }
+    return completion.choices[0].message.content;
+};
+
+router.post("/summarize", async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text) return res.status(400).json({ success: false, error: "Kuch toh likho!" });
+        const summary = await groqChat(`Summarize this in simple points:\n\n${text}`);
+        res.status(200).json({ success: true, summary });
+    } catch (error) {
+        console.error("Groq Error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
-// Code Debugger
-router.post("/code-debugger", authMiddleware, async (req, res) => {
-  const { code } = req.body;
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "user",
-          content: `Debug this code and explain issues if any. Return corrected code:\n${code}`,
-        },
-      ],
-    });
-    res.json({ result: response.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Code debugging failed" });
-  }
+router.post("/code-debugger", async (req, res) => {
+    try {
+        const { code } = req.body;
+        if (!code) return res.status(400).json({ success: false, error: "Code paste karo!" });
+        const result = await groqChat(`Find bugs and fix this code. Explain what was wrong:\n\n${code}`);
+        res.status(200).json({ success: true, result });
+    } catch (error) {
+        console.error("Groq Error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
-// Interview Simulator
-router.post("/interview", authMiddleware, async (req, res) => {
-  const { role, answers } = req.body;
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "user",
-          content: `Simulate an interview for role "${role}". Evaluate answers: "${answers}"`,
-        },
-      ],
-    });
-    res.json({ evaluation: response.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Interview simulation failed" });
-  }
+router.post("/quiz", async (req, res) => {
+    try {
+        const { topic } = req.body;
+        if (!topic) return res.status(400).json({ success: false, error: "Topic likho!" });
+        const result = await groqChat(`Generate 5 MCQ quiz questions with answers on topic: ${topic}`);
+        res.status(200).json({ success: true, result });
+    } catch (error) {
+        console.error("Groq Error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
-// Resume Analyzer
-router.post("/resume", authMiddleware, async (req, res) => {
-  const { resumeText } = req.body;
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "user",
-          content: `Analyze this resume, extract skills, suggest improvements:\n${resumeText}`,
-        },
-      ],
-    });
-    res.json({ analysis: response.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Resume analysis failed" });
-  }
-});
-
-// Caption/Content Generator
-router.post("/caption", authMiddleware, async (req, res) => {
-  const { prompt } = req.body;
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "user",
-          content: `Generate catchy captions, hashtags or short content for: "${prompt}"`,
-        },
-      ],
-    });
-    res.json({ caption: response.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Caption generation failed" });
-  }
+router.post("/email", async (req, res) => {
+    try {
+        const { prompt } = req.body;
+        if (!prompt) return res.status(400).json({ success: false, error: "Kuch toh batao!" });
+        const result = await groqChat(`Write a professional email for: ${prompt}`);
+        res.status(200).json({ success: true, result });
+    } catch (error) {
+        console.error("Groq Error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 export default router;
