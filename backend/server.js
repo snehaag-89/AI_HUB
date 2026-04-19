@@ -2,17 +2,15 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 
 // Local files (Ensure .js extensions are present)
 import aiRoutes from "./routes/ai.js";
 import authRoutes from "./routes/auth.js";
 import authMiddleware from "./middleware/auth.js";
 
+import "dotenv/config";
 // __dirname setup for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 
 // .env file ka exact path set kar rahe hain
 dotenv.config();
