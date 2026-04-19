@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import API from "../services/api";
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
+const [, setUser] = useState(null);
   const [text, setText] = useState("");
   const [code, setCode] = useState("");
   const [topic, setTopic] = useState("");
