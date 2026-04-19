@@ -1,15 +1,13 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:5000/api" });
-
-// Har request ke saath token bhejne ke liye middleware
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-  return req;
+const API = axios.create({
+  baseURL: "https://ai-hub-backend-ebc1.onrender.com/api",
 });
 
-export const signup = (formData) => API.post("/auth/signup", formData);
-export const login = (formData) => API.post("/auth/login", formData);
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export default API;
